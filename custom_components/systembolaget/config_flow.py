@@ -70,9 +70,6 @@ class SystembolagetConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_user(self, user_input=None):
         """Step 1 — enter city name to search for nearby stores."""
-        if self._async_current_entries():
-            return self.async_abort(reason="single_instance_allowed")
-
         errors: dict = {}
         if user_input is not None:
             city = (user_input.get("city") or "").strip()

@@ -327,6 +327,24 @@ class SystembolagetCoordinator(DataUpdateCoordinator):
             except Exception as exc:
                 _LOGGER.debug("[Systembolaget] Store assortment check failed: %s", exc)
 
+        # Lagersaldo och hyllplats i vald butik
+        if store_id and result.get("product_id"):
+            try:
+                async with http.get(
+                    f"{API_BASE}/sb-api-ecommerce/v1/stockbalance/store/"
+                    f"{store_id}/{result['product_id']}",
+                    headers=self._headers(),
+                    timeout=aiohttp.ClientTimeout(total=10),
+                ) as resp:
+                    if resp.status == 200:
+                        sb = await resp.json(content_type=None)
+                        result["stock_count"] = int(sb.get("stock") or 0)
+                        result["shelf"] = sb.get("shelf") or ""
+                        if sb.get("isInStoreAssortment") is not None:
+                            result["in_store_assortment"] = bool(sb["isInStoreAssortment"])
+            except Exception as exc:
+                _LOGGER.debug("[Systembolaget] Stock balance failed: %s", exc)
+
         return result
 
     def _parse_product(self, p: dict) -> dict:
@@ -357,7 +375,10 @@ class SystembolagetCoordinator(DataUpdateCoordinator):
             "in_store_assortment": None,  # filled by _fetch_product if store set
             "assortment": p.get("assortmentText") or p.get("assortment") or "",
             "taste": p.get("taste") or "",
-            "image_url": f"https://product-cdn.systembolaget.se/productimages/{product_id}/{product_id}.png" if product_id else "",
+            # Säljstart (YYYY-MM-DD) – varor kan finnas i butikens lager före säljstart
+            "sales_start": (p.get("productLaunchDate") or "")[:10],
+            # Bara bildadress om Systembolaget faktiskt har en bild
+            "image_url": f"https://product-cdn.systembolaget.se/productimages/{product_id}/{product_id}.png" if product_id and p.get("images") else "",
         }
 
     # ── Services ──────────────────────────────────────────────────────────────

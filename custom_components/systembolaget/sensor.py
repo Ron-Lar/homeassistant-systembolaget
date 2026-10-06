@@ -169,5 +169,10 @@ class SystembolagetProductSensor(_SensorBase):
             "vintage": p.get("vintage", ""),
             "in_stock": p.get("in_stock", False),
             "stock_count": p.get("stock_count", 0),
+            "shelf": p.get("shelf", ""),
+            "in_store_assortment": p.get("in_store_assortment"),
+            "image_url": p.get("image_url", ""),
+            "product_number": p.get("product_number", ""),
+            "sales_start": p.get("sales_start", ""),
             "is_new": p.get("is_new", False),
         }
