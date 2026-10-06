@@ -1,6 +1,6 @@
 {
   "domain": "systembolaget",
-  "name": "Systembolaget",
+  "name": "Systembolaget test",
   "codeowners": ["@wizz666"],
   "config_flow": true,
   "dependencies": [],
